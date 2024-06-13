@@ -1,0 +1,13 @@
+body {
+    background-color: #e9ecef;
+}
+.navbar {
+    background-color: #343a40;
+}
+.navbar-brand, .nav-link, .dropdown-item {
+    color: #fff !important;
+}
+.card-header {
+    background-color: #6c757d;
+    color: #fff;
+}
