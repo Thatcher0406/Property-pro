@@ -1,14 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\LandlordController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ActivationController;
@@ -17,10 +15,15 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\LandlordDashboardController;
 use App\Http\Controllers\TenantDashboardController;
+use App\Http\Controllers\DashboardController;
+
+// Home Dashboard route
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::get('/', function () {
+    return view('welcome');
+});
 
 
-// Home route
-Route::get('/', [HomeController::class, 'index']);
 
 // Property routes
 Route::resource('properties', PropertyController::class);
@@ -46,13 +49,13 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 
+
 // Dashboard route
 Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::middleware(['role:landlord'])->get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard');
     Route::middleware(['role:tenant'])->get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
 });
-
 
 // Activation routes
 Route::get('activation-pending', [ActivationController::class, 'pending'])->name('activation.pending');
@@ -80,8 +83,5 @@ Route::post('/email/verification-notification', function (Request $request) {
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 // Route for testing email
-Route::get('/send-test-email', [App\Http\Controllers\TestEmailController::class, 'sendTestEmail']);
-
-//Route for logout
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/send-test-email', [App\Http\Controllers\TestEmailController::class, 'sendTestEmail'])->name('test.email');
 

@@ -22,6 +22,7 @@ class RegistrationController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|string|in:tenant,landlord,admin',
         ]);
     
         if ($validator->fails()) {

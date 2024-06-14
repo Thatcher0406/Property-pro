@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
@@ -43,5 +44,12 @@ class ResetPasswordController extends Controller
             'password.confirmed' => 'Passwords do not match',
             'password.min' => 'Password must be at least 8 characters',
         ];
+    }
+
+    public function showResetForm(Request $request, $token = null)
+    {
+        return view('auth.passwords.reset')->with(
+            ['token' => $token, 'email' => $request->email]
+        );
     }
 }

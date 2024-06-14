@@ -10,28 +10,14 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
-    @vite(['resources/js/app.js', 'resources/css/app.css'])
+    @vite(['resources/js/app.js'])
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
     <!-- Styles -->
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card {
-            margin-top: 20px;
-        }
-        .card-header {
-            background-color: #343a40;
-            color: #fff;
-        }
-        .navbar {
-            margin-bottom: 20px;
-        }
-    </style>
+    @vite(['resources/sass/app.scss'])
 </head>
 <body>
     <div id="app">
@@ -47,7 +33,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-                        <!-- Add any links here if needed -->
+
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -57,11 +43,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
                             </li>
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                            </li>
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -70,7 +54,8 @@
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
 
@@ -86,3 +71,8 @@
         </nav>
 
         <main class="py-4">
+            @yield('content')
+        </main>
+    </div>
+</body>
+</html>
