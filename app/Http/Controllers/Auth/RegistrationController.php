@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Validator;
 
 class RegistrationController extends Controller
 {
+    // DISPLAY REGISTRATION FORM
     public function showRegistrationForm()
     {
         return view('auth.register');
     }
 
+    //Handle registration form submission
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -24,6 +26,27 @@ class RegistrationController extends Controller
         'password' => 'required|string|min:8|confirmed',
         'role' => 'required|string|in:tenant,landlord,admin',
         ]);
+
+        // Create user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Assign role and create corresponding record in respective table
+        switch ($request->role) {
+            case 'tenant':
+                Tenant::create(['user_id' => $user->id]);
+                break;
+            case 'landlord':
+                Landlord::create(['user_id' => $user->id]);
+                break;
+            case 'admin':
+                Admin::create(['user_id' => $user->id]);
+                break;
+        }
+
     
         if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
