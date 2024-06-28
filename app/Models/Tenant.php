@@ -9,10 +9,10 @@ class Tenant extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'user_id','name', 'email', 'phone', 'property_id'];
+    protected $fillable = [ 'user_id','phone', 'dob'];
 
-    public function property()
-    {
-        return $this->belongsTo(Property::class);
-    }
+    //public function property()
+    //{
+        //return $this->belongsTo(Property::class);
+    //}
 }

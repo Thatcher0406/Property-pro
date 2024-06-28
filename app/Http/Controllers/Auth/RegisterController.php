@@ -1,15 +1,19 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Tenant;
+use App\Models\Landlord;
+use App\Models\Admin;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccountActivationMail;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class RegisterController extends Controller
@@ -24,13 +28,13 @@ class RegisterController extends Controller
     protected $redirectTo = '/activation-pending';
 
     /**
-     * Create a new controller instance.
+     * Display the registration form.
      *
-     * @return void
+     * @return \Illuminate\View\View
      */
-    public function __construct()
+    public function showRegistrationForm()
     {
-        //$this->middleware('guest');
+        return view('auth.register');
     }
 
     /**
@@ -45,6 +49,9 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'role' => ['required', 'string', 'in:tenant,landlord,admin'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'dob' => ['nullable', 'date'],
         ]);
     }
 
@@ -61,11 +68,46 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'activation_token' => Str::random(60),
+            'role' => $data['role'],
+            'phone' => $data['phone'] ?? null,
+            'dob' => $data['dob'] ?? null,
+            'is_active' => false, // assuming users are inactive until activation
         ]);
 
-        Mail::to($user->email)->send(new AccountActivationMail($user));
+        // Handle specific role creation
+        switch ($data['role']) {
+            case 'tenant':
+                Tenant::create(['user_id' => $user->id]);
+                break;
+            case 'landlord':
+                Landlord::create(['user_id' => $user->id]);
+                break;
+            case 'admin':
+                Admin::create(['user_id' => $user->id]);
+                break;
+        }
+
+        // Uncomment to send activation email
+         Mail::to($user->email)->send(new AccountActivationMail($user));
 
         return $user;
+    }
+
+    /**
+     * Handle registration form submission.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $user = $this->create($request->all());
+
+        event(new Registered($user));
+
+        return $this->registered($request, $user);
     }
 
     /**
@@ -78,17 +120,11 @@ class RegisterController extends Controller
     protected function registered(Request $request, $user)
     {
         $this->guard()->logout();
+
+        \Log::info('User registered successfully. Redirecting to activation pending page.');
+    
         return redirect($this->redirectTo)->with('success', 'We sent you an activation code. Check your email and click on the link to verify.');
     }
 
-    public function register(Request $request)
-    {
-        $this->validator($request->all())->validate();
-
-        $user = $this->create($request->all());
-
-        event(new Registered($user));
-
-        return $this->registered($request, $user);
-    }
+    
 }

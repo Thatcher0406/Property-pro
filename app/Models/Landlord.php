@@ -9,10 +9,10 @@ class Landlord extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'user_id','name', 'email', 'phone'];
+    protected $fillable = [ 'user_id','phone'];
 
-    public function properties()
-    {
-        return $this->hasMany(Property::class);
-    }
+   // public function properties()
+    //{
+        //return $this->hasMany(Property::class);
+    //}
 }

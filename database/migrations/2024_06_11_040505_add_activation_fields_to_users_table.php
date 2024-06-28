@@ -9,8 +9,9 @@ class AddActivationFieldsToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('activation_token')->nullable();
-            $table->boolean('is_active')->default(false);
+            if (!Schema::hasColumn('users', 'is_active')) {
+                $table->tinyInteger('is_active')->default(0);
+            }
         });
     }
 

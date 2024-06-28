@@ -1,3 +1,5 @@
+<!-- resources/views/auth/register.blade.php -->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,7 +13,7 @@
                 <div class="card">
                     <div class="card-header">{{ __('Register') }}</div>
                     <div class="card-body">
-                        <form id="register-form" method="POST" action="{{ route('register') }}">
+                        <form id="register-form" method="POST" action="{{ route('register.post') }}">
                             @csrf
                             <div class="form-group">
                                 <label for="name">{{ __('Name') }}</label>
@@ -43,6 +45,34 @@
                                 <label for="password-confirm">{{ __('Confirm Password') }}</label>
                                 <input type="password" id="password-confirm" name="password_confirmation" class="form-control" required autocomplete="new-password">
                                 <span id="password-confirmation-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">{{ __('Phone') }}</label>
+                                <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone') }}" >
+                                @error('phone')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="dob">{{ __('Date of Birth') }}</label>
+                                <input type="date" name="dob" class="form-control @error('dob') is-invalid @enderror" value="{{ old('dob') }}" >
+                                @error('dob')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role">{{ __('Role') }}</label>
+                                <select name="role" class="form-control @error('role') is-invalid @enderror" required>
+                                    <option value="tenant">Tenant</option>
+                                    <option value="landlord">Landlord</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                                @error('role')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
                             </div>
 
                             <div class="form-group mb-0">
