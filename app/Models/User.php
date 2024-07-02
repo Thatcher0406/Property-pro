@@ -76,8 +76,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasRole($role)
     {
-        return $this->role === $role;
+        return $this->roles->contains('name', $role);
     }
+    
+
+    
 
     public function sendEmailVerificationNotification()
     {

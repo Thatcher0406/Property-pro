@@ -15,32 +15,27 @@ use App\Http\Controllers\TenantDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\EmailVerificationRequest;
 
 // Landing page route
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 // Authentication Routes
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')-> middleware('guest');
-    Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
-});
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+
+// regitration routes
+Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('register', [RegisterController::class, 'register'])->name('register.post');
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Password Reset Routes
-Route::middleware('guest')->group(function () {
-    Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-    Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-    Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
-});
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
 
 // Email verification routes
 Route::get('/email/verify', function () {
@@ -59,11 +54,24 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 
 // Dashboard routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard')->middleware('role:admin');
-    Route::get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard')->middleware('role:landlord');
-    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard')->middleware('role:tenant');
-});
+//Auth::routes();
+
+//Route::middleware(['auth', 'verified'])->group(function () {
+   // Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    //Route::get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard');
+    //Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
+//});
+
+// Route for confirming password
+Route::get('/password/confirm', [ConfirmPasswordController::class, 'showConfirmForm'])->name('password.confirm');
+Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
+
+// Routes for password reset
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 // Activation routes
 Route::get('/activation-pending', [ActivationController::class, 'pending'])->name('activation.pending');
@@ -83,3 +91,8 @@ Route::middleware('auth')->resource('payments', PaymentController::class);
 
 // Route for testing email
 Route::get('/send-test-email', [App\Http\Controllers\TestEmailController::class, 'sendTestEmail'])->name('test.email');
+
+
+
+
+

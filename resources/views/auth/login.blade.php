@@ -4,18 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-
 </head>
 <body>
 <style>
-
 body {
     font-family: "Poppins", sans-serif;
     margin: 0;
     padding: 0;
     background-image: url("../img/property-1.jpg");
-    /* background-repeat: no-repeat;
-    background-size: cover; */
     width: 100%;
     height: 100%;
 }
@@ -26,26 +22,22 @@ body {
     align-items: center;
     height: 100vh;
 }
-
 .card {
     background-color: #ffffff7e;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 20px;
 }
-
 .card-header {
     font-size: larger;
     font-weight: bold;
     padding: 10px;
     text-align: center;
 }
-
 .form-group {
     margin-bottom: 20px;
     margin-right: 20px;
 }
-
 input[type="email"],
 input[type="password"] {
     width: 100%;
@@ -63,16 +55,13 @@ input[type="password"] {
     border-radius: 5px;
     cursor: pointer;
 }
-
 .btn-primary:hover {
     background-color: #0056b3;
 }
-
 .btn-link {
     display: block;
     margin-top: 10px;
 }
-
 </style>
 
 <div class="container">
@@ -86,6 +75,7 @@ input[type="password"] {
             <div class="card">
                 <div class="card-header">{{ __('Login') }}</div>
                 <div class="card-body">
+                    <p>If this is your first login, please use the forgot password link to reset your password.</p>
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="form-group">
@@ -128,7 +118,6 @@ input[type="password"] {
         </div>
     </div>
 </div>
-
 
 </body>
 </html>

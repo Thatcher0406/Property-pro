@@ -97,16 +97,15 @@ return [
 
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Global "From" Address
-    |--------------------------------------------------------------------------
-    |
-    | You may wish for all emails sent by your application to be sent from
-    | the same address. Here you may specify a name and address that is
-    | used globally for all emails that are sent by your application.
-    |
-    */
+    
+
+   'driver' => env('MAIL_MAILER', 'smtp'),
+ 'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+ 'port' => env('MAIL_PORT', 587),
+ 'username' => env('MAIL_USERNAME'),
+ 'password' => env('MAIL_PASSWORD'),
+ 'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),

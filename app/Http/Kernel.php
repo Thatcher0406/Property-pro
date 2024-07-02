@@ -12,7 +12,7 @@ use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\HandleCors;
 use App\Http\Middleware\ConvertEmptyStringsToNull;
-
+use App\Http\Middleware\RoleMiddleware;
 
 class Kernel extends HttpKernel
 {
@@ -72,6 +72,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
-        'roel'=> \App\Http\Middleware\CheckRole::class,
     ];
+    
 }

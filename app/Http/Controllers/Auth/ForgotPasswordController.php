@@ -4,42 +4,58 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
-use Illuminate\Http\Request; 
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class ForgotPasswordController extends Controller
 {
     use SendsPasswordResetEmails;
 
-    /**
-     * Display the form to request a password reset link.
-     *
-     * @return \Illuminate\View\View
-     */
+    // Show the form to request a password reset link.
     public function showLinkRequestForm()
     {
         return view('auth.passwords.email');
     }
 
-    /**
-     * Send a reset link to the given user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Send a reset link to the given user.
     public function sendResetLinkEmail(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $this->validateEmail($request);
 
-        $status = Password::sendResetLink(
+        $response = $this->broker()->sendResetLink(
             $request->only('email')
         );
 
-        Log::info('Password reset link sent status: ' . $status);
+        return $response == \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+                    ? back()->with('status', trans($response))
+                    : back()->withErrors(['email' => trans($response)]);
+    }
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with(['status' => __($status)])
-            : back()->withErrors(['email' => __($status)]);
+    // Show the reset password form.
+    public function showResetForm($token)
+    {
+        return view('auth.passwords.reset')->with(
+            ['token' => $token, 'email' => request('email')]
+        );
+    }
+
+    // Reset the given user's password.
+    public function reset(Request $request)
+    {
+        $this->validate($request, [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $response = $this->broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $this->resetPassword($user, $password);
+            }
+        );
+
+        return $response == \Illuminate\Support\Facades\Password::PASSWORD_RESET
+                    ? redirect()->route('login')->with('status', trans($response))
+                    : back()->withErrors(['email' => [trans($response)]]);
     }
 }
