@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -14,10 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Password;
 use App\Mail\AccountActivationMail;
 use Illuminate\Support\Str;
-
 
 class RegisterController extends Controller
 {
@@ -91,10 +88,8 @@ class RegisterController extends Controller
                 break;
         }
 
-        $this->sendPasswordResetNotification($user);
-
-        // Uncomment to send activation email
-         //Mail::to($user->email)->send(new AccountActivationMail($user));
+        // Send activation email
+        Mail::to($user->email)->send(new AccountActivationMail($user));
 
         return $user;
     }
@@ -127,18 +122,6 @@ class RegisterController extends Controller
     {
         $this->guard()->logout();
 
-        //send passswor dreset email
-        $token = app('auth.password.broker')->createToken($user);
-    $user->sendPasswordResetNotification($token);
-
-    return redirect('/activation-pending')->with('status', 'Registration successful. Please check your email to reset your password.');
+        return redirect('/activation-pending')->with('status', 'Registration successful. Please check your email to activate your account.');
     }
-
-    protected function sendPasswordResetNotification($user)
-{
-    $token = Password::createToken($user);
-    $user->sendPasswordResetNotification($token);
-}
-
-    
 }

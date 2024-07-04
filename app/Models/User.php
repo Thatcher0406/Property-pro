@@ -1,18 +1,17 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
 use App\Notifications\CustomVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use  HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +27,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'dob',
         'activation_token',
         'is_active',
-        
     ];
 
     /**
@@ -61,14 +59,6 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-
-
     public function roles()
     {
         return $this->belongsToMany(Role::class);
@@ -78,17 +68,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->roles->contains('name', $role);
     }
-    
-
-    
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
+        $this->notify(new CustomVerifyEmail);
     }
 
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token, $this));
+    }
 
+   
 }
-
-
-

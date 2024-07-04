@@ -15,6 +15,8 @@ use App\Http\Controllers\TenantDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ConfirmPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\EmailVerificationRequest;
 
@@ -67,11 +69,13 @@ Route::get('/password/confirm', [ConfirmPasswordController::class, 'showConfirmF
 Route::post('/password/confirm', [ConfirmPasswordController::class, 'confirm']);
 
 // Routes for password reset
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+}); 
 
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
 // Activation routes
 Route::get('/activation-pending', [ActivationController::class, 'pending'])->name('activation.pending');

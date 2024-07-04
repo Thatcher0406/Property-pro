@@ -6,21 +6,25 @@ use Illuminate\Auth\Notifications\VerifyEmail as VerifyEmailBase;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Config;
 
 class CustomVerifyEmail extends VerifyEmailBase
 {
     /**
-     * Get the verification email message for the given URL.
+     * Get the verification URL for the given notifiable.
      *
-     * @param  string  $url
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @param  mixed  $notifiable
+     * @return string
      */
     protected function verificationUrl($notifiable)
     {
         return URL::temporarySignedRoute(
             'verification.verify',
-            Carbon::now()->addMinutes(config('auth.verification.expire', 60)),
-            ['id' => $notifiable->getKey()]
+            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
         );
     }
 
@@ -36,8 +40,6 @@ class CustomVerifyEmail extends VerifyEmailBase
 
         return (new MailMessage)
             ->subject('Account Activation and Email Verification')
-            ->markdown('emails.account-activation', ['url' => $verificationUrl]);
+            ->markdown('emails.account_activation', ['url' => $verificationUrl, 'user' => $notifiable]);
     }
-
-    
 }
