@@ -2,16 +2,20 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\ResetPasswordNotification;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use  HasFactory, Notifiable;
+    use  HasFactory, Notifiable, HasApiTokens, CanResetPasswordTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'dob',
         'activation_token',
         'is_active',
+        'needs_password_reset'
     ];
 
     /**

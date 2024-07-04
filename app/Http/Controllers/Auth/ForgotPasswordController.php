@@ -6,7 +6,6 @@ use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
 
 class ForgotPasswordController extends Controller
 {
@@ -17,18 +16,36 @@ class ForgotPasswordController extends Controller
         return view('auth.passwords.email');
     }
 
-    // Custom function to send the reset email
-protected function sendResetEmail($user, $token)
-{
-    $url = url('reset-password/'.$token.'?email='.urlencode($user->email));
-    $data = [
-        'user' => $user,
-        'url' => $url,
-    ];
+    // Override the sendResetLinkEmail method to customize the email sending process
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
 
-    Mail::send('emails.password-reset', $data, function($message) use ($user) {
-        $message->to($user->email);
-        $message->subject('Reset Password Notification');
-    });
-}
+        // Send the password reset link
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        // Check the status and handle accordingly
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('status', __($status));
+        } else {
+            return back()->withErrors(['email' => __($status)]);
+        }
+    }
+
+    // Custom function to send the reset email with the generated URL
+    protected function sendResetEmail($user, $token)
+    {
+        $url = url('reset-password/'.$token.'?email='.urlencode($user->email));
+        $data = [
+            'user' => $user,
+            'url' => $url,
+        ];
+
+        Mail::send('emails.password-reset', $data, function($message) use ($user) {
+            $message->to($user->email);
+            $message->subject('Reset Password Notification');
+        });
+    }
 }
