@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PropertyController;
@@ -9,16 +10,16 @@ use App\Http\Controllers\LandlordController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\LandlordDashboardController;
-use App\Http\Controllers\TenantDashboardController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\AdminDashboardController;
+use App\Http\Controllers\Auth\LandlordDashboardController;
+use App\Http\Controllers\Auth\TenantDashboardController;
+use App\Http\Controllers\Auth\DashboardController;
 use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use Illuminate\Http\Request;
-use Illuminate\Auth\Events\EmailVerificationRequest;
+//use Illuminate\Auth\Events\EmailVerificationRequest;
 
 // Landing page route
 Route::get('/', function () {
@@ -27,7 +28,7 @@ Route::get('/', function () {
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'attemptLogin'])->name('login.post');
 
 // regitration routes
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
@@ -38,31 +39,14 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-
-// Email verification routes
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
-
-Route::get('/email/verify/{id}/{hash}', function (Illuminate\Auth\Events\EmailVerificationRequest $request) {
-    $request->fulfill();
-    return redirect('/activation-pending'); // Redirect to your activation pending page
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-
-
 // Dashboard routes
-//Auth::routes();
+Auth::routes();
 
-//Route::middleware(['auth', 'verified'])->group(function () {
-   // Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    //Route::get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard');
-    //Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
-//});
+Route::middleware(['auth', 'verified'])->group(function () {
+   Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard');
+    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
+});
 
 // Route for confirming password
 Route::get('/password/confirm', [ConfirmPasswordController::class, 'showConfirmForm'])->name('password.confirm');
@@ -78,9 +62,33 @@ Route::middleware('guest')->group(function () {
 
 
 // Activation routes
-Route::get('/activation-pending', [ActivationController::class, 'pending'])->name('activation.pending');
-Route::get('activate/{id}/{token}', [ActivationController::class, 'activate'])->name('activate');
+Auth::routes(['verify' => true]);
 
+Route::get('/activation-pending', function () {
+    return view('auth.activation-pending');
+})->name('activation.pending');
+
+// Route::get('activate/{id}/{token}', [ActivationController::class, 'activate'])->name('activation.activate');
+// Route::get('activation-pending', [ActivationController::class, 'pending'])->name('activation.pending');
+
+// Ensure the email verification route is defined
+// Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+//     $request->fulfill();
+//     return redirect('/');
+// })->middleware(['auth', 'signed'])->name('verification.verify');
+
+// Route::get('email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->middleware('verified');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/home'); // Redirect to home or wherever you want after verification
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/resend', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 // Property routes
 Route::middleware('auth')->resource('properties', PropertyController::class);
 

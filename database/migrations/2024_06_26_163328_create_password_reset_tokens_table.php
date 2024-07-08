@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 class CreatePasswordResetTokensTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -20,11 +15,6 @@ class CreatePasswordResetTokensTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('password_reset_tokens');

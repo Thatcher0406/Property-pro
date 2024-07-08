@@ -6,13 +6,15 @@ use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Landlord;
 use App\Models\Admin;
-use App\Providers\RouteServiceProvider;
+//use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Mail;
+use App\Notification\ActivateAccount;
 use App\Mail\AccountActivationMail;
 use Illuminate\Support\Str;
 
@@ -66,7 +68,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make(Str::random(16)), // Set a temporary password
+            'password' => Hash::make(Str::random(16)),
             'activation_token' => Str::random(60),
             'role' => $data['role'],
             'phone' => $data['phone'] ?? null,
@@ -88,8 +90,13 @@ class RegisterController extends Controller
                 break;
         }
 
-        // Send activation email
-        Mail::to($user->email)->send(new AccountActivationMail($user));
+        // Generate the activation link
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
+
+        // Send the activation email
+        Mail::to($user->email)->send(new AccountActivationMail($user, $verificationUrl));
 
         return $user;
     }

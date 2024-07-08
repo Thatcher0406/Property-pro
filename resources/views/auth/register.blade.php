@@ -11,7 +11,7 @@
                 <div class="card">
                     <div class="card-header">{{ __('Register') }}</div>
                     <div class="card-body">
-                        <form id="register-form" method="POST" action="{{ route('register.post') }}">
+                        <form id="register-form" method="POST">
                             @csrf
                             <div class="form-group">
                                 <label for="name">{{ __('Name') }}</label>

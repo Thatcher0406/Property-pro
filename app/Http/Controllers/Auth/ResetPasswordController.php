@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -8,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\User;
 
@@ -34,13 +34,19 @@ class ResetPasswordController extends Controller
 
         Log::info('Password reset attempt for user: '.$request->email);
 
-        // Resetting the password using Password::reset()
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                    'needs_password_reset' => false,
+                    //'email_verified_at' => date('Y-m-d H:i:s'),
+                    'is_active' => true,
                 ])->save();
+
+
+                //DB::table('users')->update(['password' => Hash::make($password)])->where('email', $user->email);
 
                 $user->setRememberToken(Str::random(60));
 
@@ -55,3 +61,4 @@ class ResetPasswordController extends Controller
                     : back()->withErrors(['email' => [__($status)]]);
     }
 }
+

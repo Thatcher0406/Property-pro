@@ -4,35 +4,28 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 
 class ActivationController extends Controller
 {
+    public function activate($token)
+ {
+    $user = User::where('activation_token', $token)->first();
 
-    public function activate($id,$token)
-    {
-        $user = User::where('activation_token', $token)->first();
-
-        if (!$user) {
-            return redirect('/')->with('error', 'Invalid activation token.');
-        }
-
-        $user->is_active = true;
+    if ($user) {
+        $user->is_active = 1;
+        $user->email_verified_at = now();
         $user->activation_token = null;
         $user->save();
 
-        // Send password reset link
-        //Password::broker()->sendResetLink(['email' => $user->email]);
+        event(new Verified($user));
 
-        return redirect()->route('password.request')->with('status', 'Your account has been activated. Please reset your password.');
+        return redirect('/login')->with('status', 'Your account has been activated and email verified.');
     }
 
-    public function pending()
-    {
-        return view('auth.activation_pending');
-    }
-
-    
+    return redirect('/login')->with('error', 'Activation token is invalid.');
+ }
 }
-

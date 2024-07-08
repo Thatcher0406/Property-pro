@@ -15,20 +15,23 @@ class AccountActivationMail extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
+    public $verificationUrl;
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct(User $user)
+   
+    public function __construct(User $user, $verificationUrl)
     {
         $this->user = $user;
+        $this->verificationUrl = $verificationUrl;
     }
 
     public function build()
     {
         return $this->view('emails.account_activation')
                     ->subject('Activate Your Account')
-                    ->with(['user' => $this->user]);
+                    ->with([
+                        'user' => $this->user,
+                        'verificationUrl' => $this->verificationUrl,
+                    ]);
     }
     
 }
