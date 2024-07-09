@@ -1,54 +1,30 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
 use App\Notifications\CustomVerifyEmail;
+use App\Notifications\ResetPasswordNotification;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens, CanResetPasswordTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'phone',
-        'dob',
-        'activation_token',
-        'is_active',
-        
+        'name', 'email', 'password', 'role', 'phone', 'dob', 'activation_token', 'is_active', 'needs_password_reset'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'needs_password_reset' => 'boolean',
     ];
 
     protected static function boot()
@@ -61,14 +37,6 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-
-
     public function roles()
     {
         return $this->belongsToMany(Role::class);
@@ -78,17 +46,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->roles->contains('name', $role);
     }
-    
 
-    
+    // public function sendEmailVerificationNotification()
+    // {
+    //     $this->notify(new CustomVerifyEmail);
+    // }
 
-    public function sendEmailVerificationNotification()
+    public function sendPasswordResetNotification($token)
     {
-        $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
+        $this->notify(new ResetPasswordNotification($token, $this));
     }
-
-
 }
-
-
-

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -37,20 +39,27 @@ class LoginController extends Controller
         //$this->middleware('guest')->except('logout');
     }
 
-    protected function attemptLogin(Request $request)
+
+    public function attemptLogin(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            Log::info('User logged in: '.$user->email);
             if ($user->needs_password_reset) {
                 Auth::logout();
                 return false;
             }
-            if ($user->role === $request->role) {
-                return true;
+            if ($user->role == 'admin') {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->role == 'landlord') {
+                return view('landlord.dashboard');
+            } elseif ($user->role == 'tenant') {
+                return redirect()->route('tenant.dashboard');
             }
-            Auth::logout();
+    
+            return redirect()->route('home');
         }
         return false;
     }
