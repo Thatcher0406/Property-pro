@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\LandlordController;
+use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -40,13 +42,38 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Dashboard routes
-Auth::routes();
+// Auth::routes();
 
-Route::middleware(['auth', 'verified'])->group(function () {
-   Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    Route::get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard');
-    Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
+// Route::middleware(['auth', 'verified'])->group(function () {
+//    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+//     Route::get('/landlord/dashboard', [LandlordDashboardController::class, 'index'])->name('landlord.dashboard');
+//     Route::get('/tenant/dashboard', [TenantDashboardController::class, 'index'])->name('tenant.dashboard');
+// });
+
+//Admin dashboard
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/dashboard', 'App\Http\Controllers\AdminController@dashboard')->name('admin.dashboard');
+    Route::resource('admin/tenants', TenantController::class);
+    Route::resource('admin/landlords', LandlordController::class);
+    Route::resource('admin/apartments', ApartmentController::class);
+    Route::get('admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
 });
+
+// Tenants dashboard
+Route::middleware(['auth'])->group(function () {
+    Route::get('/tenant/dashboard', [TenantController::class, 'index'])->name('tenant.dashboard');
+    Route::get('/tenant/apartments', [TenantController::class, 'viewApartments'])->name('tenant.apartments');
+    Route::get('/tenant/maintenance-request', function () {
+        return view('tenant.maintenance_request');
+    })->name('tenant.submitMaintenanceRequest');
+    Route::post('/tenant/maintenance-request', [TenantController::class, 'submitMaintenanceRequest']);
+    Route::get('/tenant/feedback', function () {
+        return view('tenant.feedback');
+    })->name('tenant.giveFeedback');
+    Route::post('/tenant/feedback', [TenantController::class, 'giveFeedback']);
+});
+
+
 
 // Route for confirming password
 Route::get('/password/confirm', [ConfirmPasswordController::class, 'showConfirmForm'])->name('password.confirm');

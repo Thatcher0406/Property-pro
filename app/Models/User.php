@@ -56,4 +56,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new ResetPasswordNotification($token, $this));
     }
+
+    // Example isAdmin() method in User model
+public function isAdmin()
+{
+    return $this->role === 'admin'; // Adjust as per your user role logic
+}
 }
