@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landlord Dashboard</title>
-</head>
-<body>
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
     <h1>Landlord Dashboard</h1>
-    <p>Welcome, {{ auth()->user()->name }}!</p>
-</body>
-</html>
+    <p>Welcome, {{ Auth::user()->name }}</p>
+    <a href="{{ route('landlord.applications') }}">View Applications</a>
+    <a href="{{ route('landlord.apartments.index') }}">Manage Apartments</a>
+</div>
+@endsection

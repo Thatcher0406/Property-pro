@@ -11,8 +11,13 @@ class Landlord extends Model
 
     protected $fillable = [ 'user_id','phone'];
 
-   // public function properties()
-    //{
-        //return $this->hasMany(Property::class);
-    //}
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function apartments()
+    {
+        return $this->hasMany(Apartment::class);
+    }
 }

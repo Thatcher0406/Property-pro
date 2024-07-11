@@ -11,5 +11,8 @@ class Tenant extends Model
 
     protected $fillable = [ 'user_id','phone', 'dob'];
 
-    
+    public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
 }

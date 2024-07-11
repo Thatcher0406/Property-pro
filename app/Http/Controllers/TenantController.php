@@ -1,5 +1,5 @@
 <?php
-// app/Http/Controllers/TenantController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\Apartment;
@@ -24,9 +24,11 @@ class TenantController extends Controller
             return redirect('/home'); 
         }
 
-        $apartments = Apartment::all(); // Adjust as necessary to show available apartments
+        $apartments = Apartment::all();
         return view('tenant.apartments', compact('apartments'));
     }
+
+    
 
     public function submitMaintenanceRequest(Request $request) {
         if (auth()->user()->role !== 'tenant') {
@@ -43,7 +45,7 @@ class TenantController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('tenant.dashboard')->with('success', 'Maintenance request submitted.');
+        return redirect()->route('maintenance.request.success')->with('success', 'Maintenance request submitted successfully.We will get back to you soon');
     }
 
     public function giveFeedback(Request $request) {
@@ -61,8 +63,7 @@ class TenantController extends Controller
             'feedback' => $request->feedback,
         ]);
 
-        // Save feedback to database (create a Feedback model and migration if necessary)
-
-        return redirect()->route('tenant.dashboard')->with('success', 'Feedback submitted.');
+        
+        return redirect()->route('feedback.success')->with('success', 'Feedback submitted successfully.Thank you for your feedback.');
     }
 }
