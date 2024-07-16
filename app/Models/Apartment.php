@@ -9,7 +9,12 @@ class Apartment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'location', 'rent', 'status'];
+    protected $fillable = ['name', 'address', 'units', 'location', 'rent', 'landlord_id'];
+
+    public function landlord()
+    {
+        return $this->belongsTo(Landlord::class);
+    }
 
     public function tenants()
     {
@@ -17,7 +22,17 @@ class Apartment extends Model
     }
 
     public function bookings()
-{
-    return $this->hasMany(Booking::class);
-}
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

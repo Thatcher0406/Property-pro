@@ -62,4 +62,11 @@ public function isAdmin()
 {
     return $this->role === 'admin'; // Adjust as per your user role logic
 }
+
+public function landlord()
+{
+    return $this->hasOne(Landlord::class);
+}
+
+
 }

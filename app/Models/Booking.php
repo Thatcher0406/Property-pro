@@ -10,7 +10,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tenant_id', 'apartment_id', 'booked_at'
+        'tenant_id', 'apartment_id', 'booked_at','landlord_id'
     ];
 
     public function tenant()
@@ -21,5 +21,10 @@ class Booking extends Model
     public function apartment()
     {
         return $this->belongsTo(Apartment::class);
+    }
+
+    public function landlord()
+    {
+        return $this->belongsTo(Landlord::class);
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Apartment;
 use App\Models\Booking;
+use App\Models\Tenant;
+use App\Models\Landlord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

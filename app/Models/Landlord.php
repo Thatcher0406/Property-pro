@@ -9,7 +9,7 @@ class Landlord extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'user_id','phone'];
+    protected $fillable = ['user_id', 'phone'];
 
     public function user()
     {
@@ -20,4 +20,9 @@ class Landlord extends Model
     {
         return $this->hasMany(Apartment::class);
     }
+
+    public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
 }

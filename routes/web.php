@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ApplicationController;
 use Illuminate\Http\Request;
 //use Illuminate\Auth\Events\EmailVerificationRequest;
 
@@ -60,48 +61,77 @@ Route::middleware(['auth'])->group(function () {
     Route::get('admin/reports', [AdminController::class, 'reports'])->name('admin.reports');
 });
 
-// Tenants dashboard
+// Tenant dashboard
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/tenant/dashboard', [TenantController::class, 'index'])->name('tenant.dashboard');
-    Route::get('/tenant/apartments', [TenantController::class, 'viewApartments'])->name('tenant.apartments'); // Correct route name
-    Route::post('/tenant/maintenance-request', [TenantController::class, 'submitMaintenanceRequest'])->name('tenant.submitMaintenanceRequest');
+
+    // View apartments and perform actions
+    Route::get('/tenant/apartments', [TenantController::class, 'viewApartments'])->name('tenant.apartments.index');
+
+    // Book appointment to view apartment
+    Route::get('/tenant/apartments/{apartment}/book', [TenantController::class, 'bookAppointment'])->name('tenant.apartments.book');
+    Route::post('/tenant/apartments/{apartment}/book', [TenantController::class, 'processBookAppointment'])->name('tenant.apartments.book.store');
+
+    // Booking success
+    Route::get('/tenant/booking/success', function () {
+        return view('tenant.booking_success');
+    })->name('booking.success');
+
+    // Submit application to rent apartment
+    Route::get('/tenant/apartments/{apartment}/apply', [TenantController::class, 'submitApplicationForm'])->name('tenant.apartments.apply');
+    Route::post('/tenant/apartments/{apartment}/apply', [TenantController::class, 'processApplication'])->name('tenant.apartments.apply.store');
+
+    Route::get('/application/success', [ApplicationController::class, 'success'])->name('application.success');
+
+    
+    // Maintenance requests
+    Route::get('/tenant/maintenance-request', [TenantController::class, 'showMaintenanceRequestForm'])->name('tenant.maintenance.create');
+    Route::post('/tenant/maintenance-request', [TenantController::class, 'submitMaintenanceRequest'])->name('tenant.maintenance.store');
     Route::get('/tenant/maintenance-request/success', function () {
         return view('tenant.maintenance_success');
     })->name('maintenance.request.success');
 
-    Route::post('/tenant/feedback', [TenantController::class, 'giveFeedback'])->name('tenant.giveFeedback');
+    // Feedback
+    Route::get('/tenant/feedback', [TenantController::class, 'showFeedbackForm'])->name('tenant.feedback.create');
+    Route::post('/tenant/feedback', [TenantController::class, 'giveFeedback'])->name('tenant.feedback.store');
     Route::get('/tenant/feedback/success', function () {
         return view('tenant.feedback_success');
     })->name('feedback.success');
 });
 
-//booking routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/apartments', [BookingController::class, 'showApartments'])->name('apartments.list');
-    Route::get('/apartments/{id}/book', [BookingController::class, 'bookApartment'])->name('apartments.book');
-    Route::post('/apartments/{id}/book', [BookingController::class, 'storeBooking'])->name('apartments.book.store');
-    Route::get('/booking/success', function () {
-        return view('tenant.booking_success');
-    })->name('booking.success');
-});
 
-// Landlord dashboard
+
+// landlord dashboard
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/landlord/dashboard', [LandlordController::class, 'index'])->name('landlord.dashboard');
 
-    // Example routes for tenant applications management
     Route::get('/landlord/applications', [LandlordController::class, 'viewApplications'])->name('landlord.applications');
     Route::post('/landlord/applications/{application}/approve', [LandlordController::class, 'approveApplication'])->name('landlord.applications.approve');
     Route::post('/landlord/applications/{application}/reject', [LandlordController::class, 'rejectApplication'])->name('landlord.applications.reject');
 
-    // Example routes for apartments management
-    Route::get('/landlord/apartments', [LandlordController::class, 'indexApartments'])->name('landlord.apartments.index');
-    Route::get('/landlord/apartments/create', [LandlordController::class, 'createApartment'])->name('landlord.apartments.create');
-    Route::post('/landlord/apartments/store', [LandlordController::class, 'storeApartment'])->name('landlord.apartments.store');
-    Route::get('/landlord/apartments/{apartment}/edit', [LandlordController::class, 'editApartment'])->name('landlord.apartments.edit');
-    Route::put('/landlord/apartments/{apartment}/update', [LandlordController::class, 'updateApartment'])->name('landlord.apartments.update');
-    Route::delete('/landlord/apartments/{apartment}/destroy', [LandlordController::class, 'destroyApartment'])->name('landlord.apartments.destroy');
+    Route::get('landlord/apartments', [LandlordController::class, 'manageApartments'])->name('landlord.apartments.index');
+    Route::get('landlord/apartments/create', [LandlordController::class, 'createApartment'])->name('landlord.apartments.create');
+    Route::post('landlord/apartments/store', [LandlordController::class, 'storeApartment'])->name('landlord.apartments.store');
+    Route::get('landlord/apartments/{apartment}/edit', [LandlordController::class, 'editApartment'])->name('landlord.apartments.edit');
+    Route::put('landlord/apartments/{apartment}', [LandlordController::class, 'updateApartment'])->name('landlord.apartments.update');
+    Route::delete('landlord/apartments/{apartment}', [LandlordController::class, 'destroyApartment'])->name('landlord.apartments.destroy');
+
+    Route::get('landlord/maintenance', [LandlordController::class, 'viewMaintenanceRequests'])->name('landlord.maintenance.view');
+    Route::post('landlord/maintenance/{request}/respond', [LandlordController::class, 'respondMaintenanceRequest'])->name('landlord.maintenance.respond');
+
+    Route::get('landlord/feedback', [LandlordController::class, 'viewFeedback'])->name('landlord.feedback.view');
+    Route::post('landlord/feedback/{feedback}/respond', [LandlordController::class, 'respondFeedback'])->name('landlord.feedback.respond');
+
+    Route::get('/landlord/bookings', [LandlordController::class, 'viewBookings'])->name('landlord.bookings');
+
+    Route::get('/landlord/tenants', [LandlordController::class, 'viewTenants'])->name('landlord.tenants');
+    Route::get('/landlord/tenants/{tenant}/rent-status', [LandlordController::class, 'viewTenantRentStatus'])->name('landlord.tenants.rent-status');
 });
+
+
+
 
 //payment routes
 Route::get('/payments/create', [PaymentController::class, 'create'])->name('payments.create');

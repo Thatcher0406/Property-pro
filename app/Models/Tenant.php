@@ -15,4 +15,14 @@ class Tenant extends Model
 {
     return $this->hasMany(Booking::class);
 }
+
+public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }
