@@ -30,6 +30,55 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// About page route
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+//Property-grid page route
+Route::get('/property-grid', function () {
+    return view('property-grid');
+})->name('property-grid');
+
+//Blog-grid page route
+Route::get('/blog-grid', function () {
+    return view('blog-grid');
+})->name('blog-grid');
+
+//Agents-grid page route
+Route::get('/agents-grid', function () {
+    return view('agents-grid');
+})->name('agents-grid');
+
+//Contact page route
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+//Property1 page route
+Route::get('/property1', function () {
+    return view('property1');
+})->name('property1');
+
+//Property2 page route
+Route::get('/property2', function () {
+    return view('property2');
+})->name('property2');
+
+//Agent1 page route
+Route::get('/agent1', function () {
+    return view('agent1');
+})->name('agent1');
+
+//Agent2 page route
+Route::get('/agent2', function () {
+    return view('agent2');
+})->name('agent2');
+
+//Blog1 page route
+Route::get('/blog1', function () {
+    return view('blog1');
+})->name('blog1');
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'attemptLogin'])->name('login.post');
@@ -151,7 +200,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
-}); 
+});
 
 
 // Activation routes
