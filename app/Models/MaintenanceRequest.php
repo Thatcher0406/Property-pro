@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class MaintenanceRequest extends Model
 {
     use HasFactory;
-    protected $fillable = ['tenant_id', 'description', 'status'];
+    protected $fillable = ['tenant_id','landlord_id', 'description', 'status'];
 
 }

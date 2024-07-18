@@ -1,20 +1,19 @@
-@extends('layouts.landlord')
-
-@section('content')
-    <h1>Applications</h1>
-    @foreach($applications as $application)
-        <div>
-            <p>Tenant: {{ $application->tenant->name }}</p>
-            <p>Apartment: {{ $application->apartment->name }}</p>
-            <p>Status: {{ $application->status }}</p>
-            <form action="{{ route('landlord.applications.approve', $application) }}" method="POST">
+@foreach ($applications as $application)
+<tr>
+    <td>{{ $application->apartment->name }}</td>
+    <td>{{ $application->tenant->name }}</td>
+    <td>{{ $application->status }}</td>
+    <td>
+        @if ($application->status == 'pending')
+            <form action="{{ route('landlord.acceptApplication', $application->id) }}" method="POST" style="display:inline-block;">
                 @csrf
-                <button type="submit">Accept</button>
+                <button type="submit" class="btn btn-success">Accept</button>
             </form>
-            <form action="{{ route('landlord.applications.reject', $application) }}" method="POST">
+            <form action="{{ route('landlord.denyApplication', $application->id) }}" method="POST" style="display:inline-block;">
                 @csrf
-                <button type="submit">Reject</button>
+                <button type="submit" class="btn btn-danger">Deny</button>
             </form>
-        </div>
-    @endforeach
-@endsection
+        @endif
+    </td>
+</tr>
+@endforeach

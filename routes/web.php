@@ -62,7 +62,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Tenant dashboard
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/tenant/dashboard', [TenantController::class, 'index'])->name('tenant.dashboard');
 
@@ -73,31 +72,37 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tenant/apartments/{apartment}/book', [TenantController::class, 'bookAppointment'])->name('tenant.apartments.book');
     Route::post('/tenant/apartments/{apartment}/book', [TenantController::class, 'processBookAppointment'])->name('tenant.apartments.book.store');
 
-    // Booking success
-    Route::get('/tenant/booking/success', function () {
-        return view('tenant.booking_success');
-    })->name('booking.success');
-
-    // Submit application to rent apartment
+    // Apply to rent apartment
     Route::get('/tenant/apartments/{apartment}/apply', [TenantController::class, 'submitApplicationForm'])->name('tenant.apartments.apply');
     Route::post('/tenant/apartments/{apartment}/apply', [TenantController::class, 'processApplication'])->name('tenant.apartments.apply.store');
 
-    Route::get('/application/success', [ApplicationController::class, 'success'])->name('application.success');
-
-    
     // Maintenance requests
     Route::get('/tenant/maintenance-request', [TenantController::class, 'showMaintenanceRequestForm'])->name('tenant.maintenance.create');
     Route::post('/tenant/maintenance-request', [TenantController::class, 'submitMaintenanceRequest'])->name('tenant.maintenance.store');
-    Route::get('/tenant/maintenance-request/success', function () {
-        return view('tenant.maintenance_success');
-    })->name('maintenance.request.success');
 
     // Feedback
     Route::get('/tenant/feedback', [TenantController::class, 'showFeedbackForm'])->name('tenant.feedback.create');
     Route::post('/tenant/feedback', [TenantController::class, 'giveFeedback'])->name('tenant.feedback.store');
+
+    // Success pages
+    Route::get('/tenant/booking/success', function () {
+        return view('tenant.booking_success');
+    })->name('booking.success');
+
+    Route::get('/tenant/application/success', function () {
+        return view('tenant.application_success');
+    })->name('application.success');
+
+    Route::get('/tenant/maintenance-request/success', function () {
+        return view('tenant.maintenance_success');
+    })->name('maintenance.request.success');
+
     Route::get('/tenant/feedback/success', function () {
         return view('tenant.feedback_success');
     })->name('feedback.success');
+
+    Route::get('/tenant/pay-rent/{id}', [TenantController::class, 'payRent'])->name('tenant.payRent');
+
 });
 
 
@@ -128,6 +133,16 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/landlord/tenants', [LandlordController::class, 'viewTenants'])->name('landlord.tenants');
     Route::get('/landlord/tenants/{tenant}/rent-status', [LandlordController::class, 'viewTenantRentStatus'])->name('landlord.tenants.rent-status');
+
+    Route::post('/landlord/confirm-booking/{id}', [LandlordController::class, 'confirmBooking'])->name('landlord.confirmBooking');
+
+    Route::post('/landlord/accept-application/{id}', [LandlordController::class, 'acceptApplication'])->name('landlord.acceptApplication');
+    Route::post('/landlord/deny-application/{id}', [LandlordController::class, 'denyApplication'])->name('landlord.denyApplication');
+
+    Route::get('/landlord/view-rent-status', 'LandlordController@viewRentStatus')->name('landlord.viewRentStatus');
+
+
+
 });
 
 

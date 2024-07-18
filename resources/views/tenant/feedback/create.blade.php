@@ -8,7 +8,7 @@
                 <div class="card-header">Submit Feedback</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('tenant.giveFeedback') }}">
+                    <form method="POST" action="{{ route('tenant.feedback.store') }}">
                         @csrf
 
                         <div class="form-group">

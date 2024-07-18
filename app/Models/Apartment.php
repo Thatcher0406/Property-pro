@@ -13,7 +13,7 @@ class Apartment extends Model
 
     public function landlord()
     {
-        return $this->belongsTo(Landlord::class);
+        return $this->belongsTo(Landlord::class, 'landlord_id');
     }
 
     public function tenants()

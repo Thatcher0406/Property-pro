@@ -8,7 +8,7 @@
                 <div class="card-header">Submit Maintenance Request</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('tenant.submitMaintenanceRequest') }}">
+                    <form method="POST" action="{{ route('tenant.maintenance.store') }}">
                         @csrf
 
                         <div class="form-group">

@@ -68,5 +68,10 @@ public function landlord()
     return $this->hasOne(Landlord::class);
 }
 
+public function apartment()
+    {
+        return $this->hasOne(Apartment::class, 'tenant_id', 'id');
+    }
+
 
 }

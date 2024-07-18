@@ -9,5 +9,6 @@
     <a href="{{ route('landlord.maintenance.view') }}"class="btn btn-primary">View Maintenance Requests</a>
     <a href="{{ route('landlord.feedback.view') }}"class="btn btn-primary">View Feedback</a>
     <a href="{{ route('landlord.bookings') }}" class="btn btn-primary">View Bookings</a>
+    <a href="{{ route('landlord.viewRentStatus') }}" class="btn btn-primary">View Rent Status</a>
 </div>
 @endsection

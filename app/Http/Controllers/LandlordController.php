@@ -3,13 +3,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Apartment;
 use App\Models\Application;
+use App\Models\Appointment;
 use App\Models\Landlord;
 use App\Models\MaintenanceRequest;
 use App\Models\Feedback;
 use App\Models\Booking;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use App\Mail\RentReminder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AppointmentConfirmed;
+use App\Mail\ApplicationAccepted;
+use App\Mail\ApplicationDenied;
 
 class LandlordController extends Controller
 {
@@ -165,9 +171,111 @@ class LandlordController extends Controller
         return view('landlord.tenant_rent_status', compact('tenant', 'rentStatus'));
     }
 
-    public function viewBookings() {
-        $landlord = auth()->user()->landlord;
-        $bookings = Booking::where('landlord_id', $landlord->id)->get();
-        return view('landlord.view_bookings', compact('bookings'));
+    public function viewBookings()
+{
+    if (auth()->user()->role !== 'landlord') {
+        return redirect('/home');
     }
+
+    $landlord = auth()->user()->landlord;
+    $bookings = Appointment::whereHas('apartment', function ($query) use ($landlord) {
+        $query->where('landlord_id', $landlord->id);
+    })->get();
+
+    return view('landlord.bookings.index', compact('bookings'));
+}
+
+public function confirmBooking($id)
+{
+    if (auth()->user()->role !== 'landlord') {
+        return redirect('/home');
+    }
+
+    $appointment = Appointment::find($id);
+
+    if (!$appointment) {
+        return redirect()->back()->with('error', 'Appointment not found.');
+    }
+
+    $appointment->status = 'confirmed';
+    $appointment->save();
+
+    // Send email notification to the tenant
+    Mail::to($appointment->tenant->email)->send(new AppointmentConfirmed($appointment));
+
+    return redirect()->back()->with('success', 'Appointment confirmed and tenant notified.');
+}
+
+public function acceptApplication($id)
+{
+    if (auth()->user()->role !== 'landlord') {
+        return redirect('/home');
+    }
+
+    $application = Application::find($id);
+
+    if (!$application) {
+        return redirect()->back()->with('error', 'Application not found.');
+    }
+
+    $application->status = 'accepted';
+    $application->save();
+
+    // Send email notification to the tenant
+    Mail::to($application->tenant->email)->send(new ApplicationAccepted($application));
+
+    return redirect()->back()->with('success', 'Application accepted and tenant notified.');
+}
+
+public function denyApplication($id)
+{
+    if (auth()->user()->role !== 'landlord') {
+        return redirect('/home');
+    }
+
+    $application = Application::find($id);
+
+    if (!$application) {
+        return redirect()->back()->with('error', 'Application not found.');
+    }
+
+    $application->status = 'denied';
+    $application->save();
+
+    // Send email notification to the tenant
+    Mail::to($application->tenant->email)->send(new ApplicationDenied($application));
+
+    return redirect()->back()->with('success', 'Application denied and tenant notified.');
+}
+
+public function viewRentStatus(Application $application)
+{
+    // Assuming $application represents the accepted application
+    return view('landlord.view-rent-status', compact('application'));
+}
+
+public function markRentPaid(Application $application)
+{
+    // Mark application rent as paid (Update your logic as per your DB structure)
+    $application->rent_paid = true;
+    $application->save();
+
+    // Send email to tenant
+    Mail::to($application->tenant->email)->send(new RentReminder($application));
+
+    return redirect()->back()->with('success', 'Rent status updated successfully.');
+}
+
+public function markRentNotPaid(Application $application)
+{
+    // Mark application rent as not paid (Update your logic as per your DB structure)
+    $application->rent_paid = false;
+    $application->save();
+
+    // Send email to tenant
+    Mail::to($application->tenant->email)->send(new RentReminder($application));
+
+    return redirect()->back()->with('success', 'Rent status updated successfully.');
+}
+
 }
